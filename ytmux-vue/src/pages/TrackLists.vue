@@ -5,18 +5,18 @@
     tabindex="0"
     ref="tracklistRef"
   >
-    <!-- Title -->
-    <h1 class="text-xl font-bold mb-2">Tracklist</h1>
+    <h1 class="text-xl font-bold mb-2">Tracklists</h1>
 
-    <!-- Header Row -->
     <div class="flex items-center px-2 py-1 text-[#9ca3af] text-sm">
-      <span class="w-[35%]">Name</span>
-      <span class="w-[30%]">Artist</span>
-      <span class="w-[25%]">Album</span>
-      <span class="w-[10%] text-right">Length</span>
+      <span class="w-[5%]">#</span>
+      <span class="w-[50%]">Name</span>
+      <span class="w-[15%]">Artist</span>
+      <span class="w-[15%]">Album</span>
+      <span class="w-[5%]">Length</span>
+      <span class="w-[5%]">Play/Stop</span>
+      <span class="w-[5%] text-right">Edit</span>
     </div>
 
-    <!-- List of Tracks -->
     <div class="flex flex-col overflow-y-auto">
       <TrackRow
         v-for="(track, index) in tracks"
@@ -29,47 +29,48 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
+import { useStore } from 'vuex'
 import TrackRow from '@/components/TrackRow.vue'
 
-const tracks = ref([
-  {
-    id: '1',
-    title: 'Redbone',
-    artist: 'Childish Gambino',
-    album: 'Awaken, My Love!',
-    length: '5:26',
-  },
-  {
-    id: '2',
-    title: 'Bohemian Rhapsody',
-    artist: 'Queen',
-    album: 'A Night at the Opera',
-    length: '6:00',
-  },
-  {
-    id: '3',
-    title: 'Blinding Lights',
-    artist: 'The Weeknd',
-    album: 'After Hours',
-    length: '3:20',
-  },
-])
-
+const store = useStore()
 const selectedIndex = ref(0)
 const tracklistRef = ref(null)
 
+const tracks = computed(() => store.state.tracks)
+
 function handleKey(e) {
+  if (!tracks.value.length) return
+
   if (e.key === 'j') {
     selectedIndex.value = (selectedIndex.value + 1) % tracks.value.length
   } else if (e.key === 'k') {
     selectedIndex.value = (selectedIndex.value - 1 + tracks.value.length) % tracks.value.length
+  } else if (e.key === 'l' || e.key === 'Enter') {
+    if (store.state.currentTrackIndex !== selectedIndex.value) {
+      store.commit('setCurrentTrackIndex', selectedIndex.value)
+      store.commit('setIsPlaying', true)
+    }
   }
 }
 
+// function handlePlay(url, index) {
+//   store.commit('setCurrentTrackIndex', index)
+//   store.commit('setIsPlaying', true)
+// }
+
 onMounted(() => {
-  nextTick(() => {
-    tracklistRef.value?.focus()
-  })
+  if (!store.state.tracks.length) {
+    store.dispatch('fetchTracks')
+  }
+
+  // Only reset index if the current track is NOT from this page
+  if (store.state.currentTrackIndex === null) {
+    selectedIndex.value = 0
+  } else {
+    selectedIndex.value = store.state.currentTrackIndex
+  }
+
+  nextTick(() => tracklistRef.value?.focus())
 })
 </script>

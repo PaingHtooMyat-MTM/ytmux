@@ -1,1 +1,11 @@
 @import 'tailwindcss';
+
+@layer base {
+  html {
+    font-size: 17px;
+  }
+}
+
+* ::selection {
+  @apply bg-blue-400 text-gray-900;
+}

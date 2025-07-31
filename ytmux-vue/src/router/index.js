@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Home from '@/pages/Home.vue'
 import Download from '@/pages/Download.vue'
 // import Library from '@/pages/Library.vue'
 // import Playlists from '@/pages/Playlists.vue'
@@ -7,8 +6,7 @@ import Download from '@/pages/Download.vue'
 import TrackLists from '@/pages/TrackLists.vue'
 
 const routes = [
-  { path: '/', name: 'Home', component: Home },
-  { path: '/library/tracks', name: 'TracksLists', component: TrackLists },
+  { path: '/tracks', name: 'TracksLists', component: TrackLists },
   { path: '/download', name: 'Download', component: Download },
   // { path: '/library', name: 'Library', component: Library },
   // { path: '/playlists', name: 'Playlists', component: Playlists },

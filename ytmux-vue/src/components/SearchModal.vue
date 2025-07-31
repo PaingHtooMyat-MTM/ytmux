@@ -64,7 +64,6 @@ function moveSelection(delta) {
 function confirmSelection() {
   const selected = filtered.value[selectedIndex.value]
   if (selected) {
-    // you can do something with the selected song here
     console.log('Selected:', selected)
     emit('close')
   }

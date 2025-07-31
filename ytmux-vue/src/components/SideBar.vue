@@ -6,7 +6,10 @@
     ref="sidebarRef"
   >
     <div class="flex flex-col gap-6 outline-none">
-      <h1 class="text-xl font-bold tracking-tight mb-2">🎵 YTMux</h1>
+      <h1 class="text-xl font-bold tracking-tight mb-2">
+        <span class="text-4xl text-blue-400">𝄞</span>
+        YTMux
+      </h1>
 
       <!-- Library Section -->
       <div>
@@ -43,7 +46,7 @@
             tabindex="-1"
             ref="el => itemRefs[libraryItems.length] = el"
           >
-            Download Progress
+            Download
           </RouterLink>
         </ul>
       </div>
@@ -59,14 +62,14 @@ const route = useRoute()
 const router = useRouter()
 
 const libraryItems = [
-  { name: 'Tracklist', to: '/library/tracks' },
-  { name: 'Recently Played', to: '/library/recent' },
-  { name: 'Playlists', to: '/library/playlists' },
-  { name: 'Albums', to: '/library/albums' },
-  { name: 'Artists', to: '/library/artists' },
+  { name: 'Tracklists', to: '/tracks' },
+  { name: 'Recently Played', to: '/recent' },
+  { name: 'Playlists', to: '/playlists' },
+  { name: 'Albums', to: '/albums' },
+  { name: 'Artists', to: '/artists' },
 ]
 
-const allItems = [...libraryItems, { name: 'Download Progress', to: '/download' }]
+const allItems = [...libraryItems, { name: 'Download', to: '/download' }]
 
 const selectedIndex = ref(0)
 const itemRefs = []

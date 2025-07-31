@@ -3,7 +3,6 @@
   <div class="h-full w-full p-4 font-mono text-white">
     <h1 class="text-xl font-bold mb-4">Download from YouTube</h1>
 
-    <!-- Input section -->
     <div class="flex flex-col gap-2 mb-4">
       <label class="text-sm text-gray-400">YouTube URL:</label>
       <input
@@ -18,10 +17,9 @@
         v-model="folder"
         type="text"
         class="bg-[#1a1f25] text-white px-3 py-2 rounded focus:outline-none"
-        placeholder="C:/Users/Paing Htoo Myat/Downloads/Music"
+        placeholder="C:/Users/Paing Htoo Myat/Music"
       />
 
-      <!-- Download button -->
       <button
         class="mt-2 bg-[#81c8f1] hover:bg-[#63b3ed] text-black font-bold py-2 px-4 rounded w-max disabled:opacity-50 disabled:cursor-not-allowed"
         @click="startDownload"
@@ -30,13 +28,11 @@
         {{ downloading ? 'Downloading...' : 'Download' }}
       </button>
 
-      <!-- Optional loading indicator -->
-      <div v-if="downloading" class="text-yellow-400 text-sm mt-2">
+      <div v-if="downloading" class="text-yellow-400 text-sm mt-2 font-bold">
         ⏳ Downloading... Please wait.
       </div>
     </div>
 
-    <!-- Download result (or error) -->
     <div v-if="downloadedTrack" class="mt-4 text-sm">
       <p>
         <span class="text-green-400">✓</span> <strong>Downloaded:</strong>
@@ -58,32 +54,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 
-const url = ref('')
-const folder = ref('C:/Users/Paing Htoo Myat/Downloads/Music')
-const downloadedTrack = ref(null)
-const error = ref(null)
-const downloading = ref(false)
+const store = useStore()
 
-async function startDownload() {
-  downloadedTrack.value = null
-  error.value = null
-  downloading.value = true
+const url = computed({
+  get: () => store.state.download.url,
+  set: (val) => store.commit('setDownloadUrl', val),
+})
 
-  try {
-    const response = await axios.post('http://localhost:8080/api/download', {
-      url: url.value,
-      folder: folder.value,
-    })
+const folder = computed({
+  get: () => store.state.download.folder,
+  set: (val) => store.commit('setDownloadFolder', val),
+})
 
-    downloadedTrack.value = response.data
-  } catch (err) {
-    console.error(err)
-    error.value = err?.response?.data?.error || 'Download failed'
-  } finally {
-    downloading.value = false
-  }
+const downloading = computed(() => store.state.download.downloading)
+const downloadedTrack = computed(() => store.state.download.downloadedTrack)
+const error = computed(() => store.state.download.error)
+
+function startDownload() {
+  store.dispatch('downloadTrack')
 }
 </script>

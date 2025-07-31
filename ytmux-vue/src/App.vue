@@ -1,7 +1,7 @@
 <template>
   <div class="w-screen h-screen bg-[#0d1117] text-white flex flex-col relative">
     <!-- Modal -->
-    <SearchModal v-if="showSearchModal" :songs="songs" @close="showSearchModal = false" />
+    <SearchModal v-if="showSearchModal" :songs="tracks" @close="closeSearch" />
 
     <!-- Main Layout -->
     <div class="flex flex-1 overflow-hidden">
@@ -20,23 +20,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
+import { useStore } from 'vuex'
 import Sidebar from './components/SideBar.vue'
 import SearchModal from './components/SearchModal.vue'
 import NowPlaying from './components/NowPlaying.vue'
 
-const showSidebar = ref(true)
-const showSearchModal = ref(false)
+const store = useStore()
 
-// Dummy data for downloaded songs (replace with your real list)
-const songs = ref([
-  { title: 'Redbone', artist: 'Childish Gambino' },
-  { title: 'Blinding Lights', artist: 'The Weeknd' },
-  { title: 'Bohemian Rhapsody', artist: 'Queen' },
-])
+const showSidebar = computed(() => store.state.showSidebar)
+const showSearchModal = computed(() => store.state.showSearchModal)
+const tracks = computed(() => store.state.tracks)
 
 function toggleSidebar() {
-  showSidebar.value = !showSidebar.value
+  store.commit('setShowSidebar', !store.state.showSidebar)
+}
+
+function closeSearch() {
+  store.commit('setShowSearchModal', false)
 }
 
 function handleKeydown(e) {
@@ -45,12 +46,13 @@ function handleKeydown(e) {
     toggleSidebar()
   } else if (e.key === '/') {
     e.preventDefault()
-    showSearchModal.value = true
+    store.commit('setShowSearchModal', true)
   }
 }
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
+  store.dispatch('fetchTracks')
 })
 
 onBeforeUnmount(() => {
