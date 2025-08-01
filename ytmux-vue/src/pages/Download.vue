@@ -1,6 +1,6 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="h-full w-full p-4 font-mono text-white">
+  <div class="h-full w-full p-4 text-white">
     <h1 class="text-xl font-bold mb-4">Download from YouTube</h1>
 
     <div class="flex flex-col gap-2 mb-4">

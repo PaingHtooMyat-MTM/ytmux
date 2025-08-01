@@ -41,12 +41,25 @@ function closeSearch() {
 }
 
 function handleKeydown(e) {
+  // Toggle Sidebar
   if (e.ctrlKey && e.key.toLowerCase() === 'b') {
     e.preventDefault()
     toggleSidebar()
-  } else if (e.key === '/') {
+  }
+
+  // Open Search Modal
+  else if (e.key === '/') {
     e.preventDefault()
     store.commit('setShowSearchModal', true)
+  }
+
+  // Global Play/Pause with Spacebar
+  else if (e.code === 'Space') {
+    const currentTrack = store.getters.currentTrack
+    if (currentTrack) {
+      e.preventDefault()
+      store.commit('setIsPlaying', !store.state.isPlaying)
+    }
   }
 }
 

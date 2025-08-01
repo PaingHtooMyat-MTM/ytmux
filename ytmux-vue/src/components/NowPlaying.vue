@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="currentTrack"
-    class="w-full px-4 py-2 bg-[#0d1117] border-t border-[#1f2933] text-white font-mono text-sm flex flex-col"
+    class="w-full px-4 py-2 bg-[#0d1117] border-t border-[#1f2933] text-white text-sm flex flex-col"
     @keydown="handleKey"
     tabindex="0"
   >
@@ -90,7 +90,7 @@
     </div>
 
     <!-- Time display -->
-    <div class="flex justify-end text-xs text-gray-400 mt-1 font-mono select-none">
+    <div class="flex justify-end text-xs text-gray-400 mt-1 select-none">
       {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
     </div>
 

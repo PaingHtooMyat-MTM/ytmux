@@ -1,13 +1,13 @@
 <template>
   <div
-    class="h-full w-full flex flex-col font-mono text-white bg-transparent outline-none"
+    class="h-full w-full flex flex-col text-white bg-transparent"
     @keydown="handleKey"
     tabindex="0"
     ref="tracklistRef"
   >
     <h1 class="text-xl font-bold mb-2">Tracklists</h1>
 
-    <div class="flex items-center px-2 py-1 text-[#9ca3af] text-sm">
+    <div class="flex items-center px-2 py-1 gap-x-2 text-[#9ca3af] text-sm">
       <span class="w-[5%]">#</span>
       <span class="w-[50%]">Name</span>
       <span class="w-[15%]">Artist</span>
@@ -16,12 +16,12 @@
       <span class="w-[5%]">Play/Stop</span>
       <span class="w-[5%] text-right">Edit</span>
     </div>
-
     <div class="flex flex-col overflow-y-auto">
       <TrackRow
         v-for="(track, index) in tracks"
         :key="track.id"
         :track="track"
+        :index="index"
         :isSelected="index === selectedIndex"
       />
     </div>
