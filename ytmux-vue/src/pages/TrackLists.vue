@@ -5,24 +5,79 @@
     tabindex="0"
     ref="tracklistRef"
   >
-    <h1 class="text-xl font-bold mb-2">Tracklists</h1>
-
-    <div class="flex items-center px-2 py-1 gap-x-2 text-[#9ca3af] text-sm">
-      <span class="w-[5%]">#</span>
-      <span class="w-[50%]">Name</span>
-      <span class="w-[15%]">Artist</span>
-      <span class="w-[15%]">Album</span>
-      <span class="w-[5%]">Length</span>
-      <span class="w-[5%]">Play/Stop</span>
-      <span class="w-[5%] text-right">Edit</span>
+    <div class="flex items-center justify-between mb-2">
+      <h1 class="text-xl font-bold">Tracklists</h1>
+      <button
+        @click="editingAll = !editingAll"
+        class="text-sm px-3 py-1 font-semibold bg-blue-500 rounded hover:bg-blue-600 transition"
+      >
+        {{ editingAll ? 'Done' : 'Edit' }}
+      </button>
     </div>
+
+    <!-- Sortable Headers -->
+    <div
+      v-if="!editingAll"
+      class="flex items-center justify-around px-2 py-1 gap-x-2 text-[#9ca3af] text-sm select-none"
+    >
+      <span class="w-[3%]">#</span>
+      <span
+        class="w-[47%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('title')"
+      >
+        Name
+      </span>
+      <span
+        class="w-[20%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('artist')"
+      >
+        Artist
+      </span>
+      <span
+        class="w-[20%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('album')"
+      >
+        Album
+      </span>
+      <span class="w-[5%]">Length</span>
+      <span class="w-[5%] flex justify-center items-center">Playlist</span>
+      <!-- Moved this to the end -->
+    </div>
+
+    <div v-else class="flex items-center px-2 py-1 gap-x-2 text-[#9ca3af] text-sm select-none">
+      <span class="w-[3%]">#</span>
+      <span
+        class="w-[47%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('title')"
+      >
+        Name
+      </span>
+      <span
+        class="w-[15%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('artist')"
+      >
+        Artist
+      </span>
+      <span
+        class="w-[15%] cursor-pointer hover:text-white hover:font-bold"
+        @click="sortBy('album')"
+      >
+        Album
+      </span>
+      <span class="w-[5%]">Length</span>
+      <span class="w-[5%]">&nbsp;</span>
+    </div>
+
+    <!-- Track Rows -->
     <div class="flex flex-col overflow-y-auto">
       <TrackRow
-        v-for="(track, index) in tracks"
+        v-for="(track, index) in sortedTracks"
         :key="track.id"
         :track="track"
-        :index="index"
+        :index="index + 1"
         :isSelected="index === selectedIndex"
+        :isPlaying="track.id === currentTrack?.id && isPlaying"
+        :editing="editingAll"
       />
     </div>
   </div>
@@ -33,43 +88,66 @@ import { ref, onMounted, nextTick, computed } from 'vue'
 import { useStore } from 'vuex'
 import TrackRow from '@/components/TrackRow.vue'
 
+const props = defineProps({
+  tracks: {
+    type: Array,
+    default: () => [],
+  },
+})
+
 const store = useStore()
 const selectedIndex = ref(0)
 const tracklistRef = ref(null)
+const editingAll = ref(false)
+const openDropdownId = ref(null)
 
-const tracks = computed(() => store.state.tracks)
+const sortedTracks = computed(() => {
+  const list = props.tracks.length ? props.tracks : store.getters.sortedTracks
+  // Apply your sorting logic here (if needed)
+  return list
+})
+const currentTrack = computed(() => store.getters.currentTrack)
+const isPlaying = computed(() => store.state.isPlaying)
 
 function handleKey(e) {
-  if (!tracks.value.length) return
+  // Ignore all shortcuts when typing in an input, textarea, or contentEditable
+  const target = e.target
+  if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+    return
+  }
+
+  if (!sortedTracks.value.length) return
 
   if (e.key === 'j') {
-    selectedIndex.value = (selectedIndex.value + 1) % tracks.value.length
+    selectedIndex.value = (selectedIndex.value + 1) % sortedTracks.value.length
   } else if (e.key === 'k') {
-    selectedIndex.value = (selectedIndex.value - 1 + tracks.value.length) % tracks.value.length
+    selectedIndex.value =
+      (selectedIndex.value - 1 + sortedTracks.value.length) % sortedTracks.value.length
   } else if (e.key === 'l' || e.key === 'Enter') {
-    if (store.state.currentTrackIndex !== selectedIndex.value) {
-      store.commit('setCurrentTrackIndex', selectedIndex.value)
+    const selectedTrack = sortedTracks.value[selectedIndex.value]
+    const originalIndex = store.state.tracks.findIndex((t) => t.id === selectedTrack.id)
+
+    if (store.state.currentTrackIndex !== originalIndex) {
+      store.commit('setCurrentTrackIndex', originalIndex)
       store.commit('setIsPlaying', true)
     }
   }
 }
 
-// function handlePlay(url, index) {
-//   store.commit('setCurrentTrackIndex', index)
-//   store.commit('setIsPlaying', true)
-// }
+function sortBy(column) {
+  store.dispatch('setSort', column)
+}
 
-onMounted(() => {
+onMounted(async () => {
   if (!store.state.tracks.length) {
-    store.dispatch('fetchTracks')
+    await store.dispatch('fetchTracks')
+    await store.dispatch('setSort', 'title')
   }
 
-  // Only reset index if the current track is NOT from this page
-  if (store.state.currentTrackIndex === null) {
-    selectedIndex.value = 0
-  } else {
-    selectedIndex.value = store.state.currentTrackIndex
-  }
+  const currentId = store.state.tracks[store.state.currentTrackIndex]?.id
+  const sortedIndex = sortedTracks.value.findIndex((t) => t.id === currentId)
+
+  selectedIndex.value = sortedIndex >= 0 ? sortedIndex : 0
 
   nextTick(() => tracklistRef.value?.focus())
 })

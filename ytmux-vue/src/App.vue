@@ -51,10 +51,13 @@ function handleKeydown(e) {
   else if (e.key === '/') {
     e.preventDefault()
     store.commit('setShowSearchModal', true)
-  }
+  } else if (e.code === 'Space') {
+    // Ignore spacebar when typing in an input, textarea, or contentEditable
+    const target = e.target
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+      return
+    }
 
-  // Global Play/Pause with Spacebar
-  else if (e.code === 'Space') {
     const currentTrack = store.getters.currentTrack
     if (currentTrack) {
       e.preventDefault()

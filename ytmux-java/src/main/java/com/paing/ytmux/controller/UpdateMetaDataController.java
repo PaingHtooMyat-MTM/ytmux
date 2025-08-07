@@ -1,38 +1,25 @@
 package com.paing.ytmux.controller;
 
 import com.paing.ytmux.dto.TrackMetadata;
-import org.jaudiotagger.audio.AudioFile;
-import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
+import com.paing.ytmux.service.TrackMetadataService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
 
 @RestController
 @RequestMapping("/api/tracks")
 public class UpdateMetaDataController {
 
+    @Autowired
+    private TrackMetadataService metadataService;
+
     @PutMapping("/edit")
     public ResponseEntity<?> editTrack(@RequestBody TrackMetadata metadata) {
-        if (metadata.getPath() == null) {
-            return ResponseEntity.badRequest().body("Missing file path");
-        }
-
         try {
-            File audioFile = new File(metadata.getPath());
-            AudioFile f = AudioFileIO.read(audioFile);
-            Tag tag = f.getTag();
-
-            if (tag != null) {
-                if (metadata.getTitle() != null) tag.setField(FieldKey.TITLE, metadata.getTitle());
-                if (metadata.getArtist() != null) tag.setField(FieldKey.ARTIST, metadata.getArtist());
-                if (metadata.getAlbum() != null) tag.setField(FieldKey.ALBUM, metadata.getAlbum());
-                f.commit();
-            }
-
-            return ResponseEntity.ok("Metadata updated");
+            String message = metadataService.updateTrackMetadata(metadata);
+            return ResponseEntity.ok(message);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error updating metadata: " + e.getMessage());

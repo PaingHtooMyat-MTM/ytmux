@@ -34,11 +34,15 @@
     </div>
 
     <div v-if="downloadedTrack" class="mt-4 text-sm">
+      <p v-if="downloadedTrack.alreadyExists" class="text-yellow-400 font-bold">
+        ⚠ Track already exists. Showing existing info.
+      </p>
       <p>
-        <span class="text-green-400">✓</span> <strong>Downloaded:</strong>
+        <span class="text-green-400">✓ </span>
+        <strong>{{ downloadedTrack.alreadyExists ? 'Found:' : 'Downloaded:' }}</strong>
         {{ downloadedTrack.title }}
       </p>
-      <p><strong>Duration:</strong> {{ downloadedTrack.duration }}s</p>
+      <p><strong>Duration:</strong> {{ formatDuration(downloadedTrack.duration) }}</p>
       <p><strong>Artist:</strong> {{ downloadedTrack.artist }}</p>
       <p><strong>Album:</strong> {{ downloadedTrack.album }}</p>
       <p><strong>File:</strong> {{ downloadedTrack.filePath }}</p>
@@ -75,5 +79,15 @@ const error = computed(() => store.state.download.error)
 
 function startDownload() {
   store.dispatch('downloadTrack')
+}
+
+function formatDuration(seconds) {
+  const m = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, '0')
+  const s = Math.floor(seconds % 60)
+    .toString()
+    .padStart(2, '0')
+  return `${m}:${s}`
 }
 </script>

@@ -193,13 +193,15 @@ function formatTime(seconds) {
 }
 
 function nextTrack() {
-  store.commit('nextTrack')
-  store.commit('setIsPlaying', true)
+  store.dispatch('nextTrack').then(() => {
+    store.commit('setIsPlaying', true)
+  })
 }
 
 function prevTrack() {
-  store.commit('prevTrack')
-  store.commit('setIsPlaying', true)
+  store.dispatch('prevTrack').then(() => {
+    store.commit('setIsPlaying', true)
+  })
 }
 
 function toggleRepeat() {

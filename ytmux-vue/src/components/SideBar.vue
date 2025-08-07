@@ -63,7 +63,6 @@ const router = useRouter()
 
 const libraryItems = [
   { name: 'Tracklists', to: '/tracks' },
-  { name: 'Recently Played', to: '/recent' },
   { name: 'Playlists', to: '/playlists' },
   { name: 'Albums', to: '/albums' },
   { name: 'Artists', to: '/artists' },
